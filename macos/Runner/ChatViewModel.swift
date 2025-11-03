@@ -40,21 +40,28 @@ class ChatViewModel: ObservableObject {
     }
 
     private func setupConversationAssistant() {
-        // Real-time transcript updates (partial - while speaking)
+        // Real-time transcript updates (partial - continuous listening mode)
+        // This provides live updates as speech is recognized
         SpeechStreamRecognizer.shared.onPartialTranscript = { [weak self] transcript in
             Task { @MainActor in
                 self?.liveTranscript = transcript
-                // Also update conversation assistant with partial transcript
+                // Update conversation assistant with live transcript
                 self?.conversationAssistant.updateTranscript(transcript)
             }
         }
 
-        // Complete transcript updates (final - after pause)
+        // Complete transcript updates (final - for button-triggered mode)
+        // Also used when speech recognition completes a segment
         SpeechStreamRecognizer.shared.onRecognitionResult = { [weak self] transcript in
+            guard let self = self else { return }
             Task { @MainActor in
-                self?.liveTranscript = transcript
+                // In continuous mode, just update the transcript
+                self.liveTranscript = transcript
+
+                print("📝 Final transcript: \(self.liveTranscript)")
+
                 // Update conversation assistant with final transcript
-                self?.conversationAssistant.updateTranscript(transcript)
+                self.conversationAssistant.updateTranscript(self.liveTranscript)
             }
         }
 
@@ -76,25 +83,69 @@ class ChatViewModel: ObservableObject {
     // MARK: - Conversation Assistant Controls
 
     func startListening() {
-        print("▶️ Starting conversation assistant...")
+        print("▶️ Starting conversation assistant with continuous glasses mic...")
         isListening = true
 
-        // Start continuous Mac microphone listening
-        SpeechStreamRecognizer.shared.startContinuousMacListening(identifier: "EN")
+        guard BluetoothManager.shared.isConnected else {
+            print("⚠️ Glasses not connected - cannot start listening")
+            isListening = false
+            return
+        }
 
-        // Start LLM analysis
+        // Start continuous glasses microphone listening
+        startContinuousGlassesMic()
+
+        // Start LLM analysis (will analyze transcript as it comes in)
         conversationAssistant.startAnalysis()
+
+        print("🎧 Glasses microphone is now continuously listening")
     }
 
     func stopListening() {
         print("⏹️ Stopping conversation assistant...")
         isListening = false
 
-        // Stop microphone
-        SpeechStreamRecognizer.shared.stopContinuousMacListening()
+        // Stop glasses microphone
+        stopContinuousGlassesMic()
 
         // Stop analysis
         conversationAssistant.stopAnalysis()
+
+        // Keep the transcript - user can manually clear with Clear button
+        print("💾 Transcript preserved: \(liveTranscript.count) chars")
+    }
+
+    private func startContinuousGlassesMic() {
+        print("🎤 Activating continuous glasses microphone...")
+
+        // Start speech recognition first
+        SpeechStreamRecognizer.shared.startRecognition(identifier: "EN")
+
+        // Small delay to ensure recognition is ready
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            // Send command to activate glasses microphone (0x0E 0x01)
+            let micOnCommand = Data([0x0E, 0x01])
+            let success = BluetoothManager.shared.sendData(data: micOnCommand, lr: "R")
+
+            if success {
+                print("✅ Glasses microphone activated (continuous mode)")
+            } else {
+                print("❌ Failed to activate glasses microphone")
+            }
+        }
+    }
+
+    private func stopContinuousGlassesMic() {
+        print("🎤 Deactivating continuous glasses microphone...")
+
+        // Send command to deactivate glasses microphone (0x0E 0x00)
+        let micOffCommand = Data([0x0E, 0x00])
+        BluetoothManager.shared.sendData(data: micOffCommand, lr: "R")
+
+        // Stop speech recognition
+        SpeechStreamRecognizer.shared.stopRecognition()
+
+        print("✅ Glasses microphone deactivated")
     }
 
     func updateAnalysisInterval(_ interval: Double) {

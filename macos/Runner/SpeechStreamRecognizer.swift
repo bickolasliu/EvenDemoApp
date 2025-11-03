@@ -146,6 +146,14 @@ class SpeechStreamRecognizer {
                 }
 
                 lastTranscription = result.bestTranscription
+
+                // Send partial results for live transcript display (conversation assistant mode)
+                if !result.isFinal {
+                    let partialText = self.lastRecognizedText + cacheString
+                    DispatchQueue.main.async {
+                        self.onPartialTranscript?(partialText)
+                    }
+                }
             }
         }
 

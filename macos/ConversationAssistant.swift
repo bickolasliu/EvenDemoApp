@@ -121,7 +121,8 @@ class ConversationAssistant {
             return
         }
 
-        guard transcript.count > 10 else {
+        // Lower threshold for glasses mic (shorter voice sessions)
+        guard transcript.count > 5 else {
             print("⏭️ Skipping analysis - transcript too short (\(transcript.count) chars)")
             return
         }

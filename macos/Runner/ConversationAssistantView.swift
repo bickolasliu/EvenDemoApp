@@ -95,7 +95,7 @@ struct ConversationAssistantView: View {
             }
             .buttonStyle(.borderedProminent)
             .tint(viewModel.isListening ? .red : .green)
-            .help(viewModel.isListening ? "Stop listening" : "Start conversation assistant")
+            .help(viewModel.isListening ? "Stop continuous listening" : "Start continuous listening (glasses mic always on)")
         }
     }
 
@@ -122,10 +122,31 @@ struct ConversationAssistantView: View {
                 ScrollViewReader { proxy in
                     VStack(alignment: .leading, spacing: 0) {
                         if viewModel.liveTranscript.isEmpty {
-                            Text("Waiting for speech...")
-                                .foregroundColor(.secondary)
-                                .italic()
-                                .padding()
+                            VStack(alignment: .center, spacing: 12) {
+                                Image(systemName: "waveform")
+                                    .font(.system(size: 48))
+                                    .foregroundColor(.secondary)
+                                    .symbolEffect(.variableColor.iterative, options: .repeating, isActive: viewModel.isListening)
+
+                                if viewModel.isListening {
+                                    Text("Glasses microphone is active")
+                                        .font(.body)
+                                        .foregroundColor(.primary)
+                                        .multilineTextAlignment(.center)
+
+                                    Text("Start speaking - transcript will appear here")
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                        .multilineTextAlignment(.center)
+                                } else {
+                                    Text("Click Start to begin listening")
+                                        .font(.body)
+                                        .foregroundColor(.secondary)
+                                        .multilineTextAlignment(.center)
+                                }
+                            }
+                            .frame(maxWidth: .infinity, maxHeight: .infinity)
+                            .padding()
                         } else {
                             Text(viewModel.liveTranscript)
                                 .font(.system(.body, design: .default))

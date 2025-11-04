@@ -1,4 +1,4 @@
-# Even GPT - AI Conversation Assistant for Even Realities G1 Glasses
+# Cluely IRL - AI Conversation Assistant for Even Realities G1 Glasses
 
 A native Swift/SwiftUI macOS application for Even Realities G1 AR glasses with OpenAI GPT-5 integration and real-time web search.
 
@@ -6,9 +6,10 @@ A native Swift/SwiftUI macOS application for Even Realities G1 AR glasses with O
 
 ### Conversation Assistant Mode
 
+- Modern split-view interface (live transcript + AI suggestions)
 - Continuous listening via glasses microphone
-- GPT-5 analyzes transcript every 5 seconds (configurable)
-- Displays contextual suggestions or direct answers on glasses
+- GPT-5 analyzes transcript every 5 seconds (configurable via UI)
+- Displays contextual suggestions or direct answers on glasses and in app
 - Uses OpenAI Responses API with web search for factual queries
 - 5-line format optimized for AR display (3 words per line)
 
@@ -21,10 +22,12 @@ A native Swift/SwiftUI macOS application for Even Realities G1 AR glasses with O
 
 ### Core Capabilities
 
+- Tab-based interface for Conversation Assistant and Connection management
 - Dual Bluetooth connectivity (separate BLE channels for left/right arms)
 - On-device speech recognition using Apple Speech Framework
 - LC3 audio codec for Bluetooth LE audio decoding
 - Custom BLE protocol for glasses display
+- Real-time transcript and suggestion display with modern SwiftUI design
 
 ## Requirements
 
@@ -65,9 +68,11 @@ Press `⌘R` or click the Play button. Grant permissions when prompted:
 
 ### 4. Connect Glasses
 
-1. Click "Scan for Glasses"
-2. Select your G1 glasses from the list (e.g., "Pair_0")
-3. Wait for "Connected" status (both left and right channels)
+1. Navigate to the "Connection" tab
+2. Click "Scan for Glasses"
+3. Select your G1 glasses from the list (e.g., "Pair_0")
+4. Wait for "Connected" status (both left and right channels)
+5. Switch to "Conversation Assistant" tab to start using the app
 
 ## Usage
 
@@ -75,16 +80,18 @@ Press `⌘R` or click the Play button. Grant permissions when prompted:
 
 This mode provides continuous transcript analysis with real-time suggestions.
 
-1. Connect glasses
-2. Click "Start Listening"
+1. Connect glasses (via Connection tab)
+2. Switch to "Conversation Assistant" tab
+3. Click "Start" button
    - Glasses microphone activates continuously
-   - Live transcript appears in the app
-3. Speak normally - glasses capture your speech
-4. Every 5 seconds, GPT-5 analyzes the transcript:
+   - Live transcript appears in left panel
+   - AI suggestions appear in right panel
+4. Speak normally - glasses capture your speech
+5. Every 5 seconds (configurable), GPT-5 analyzes the transcript:
    - Questions receive direct answers with web-searched facts
    - Statements receive contextual follow-up suggestions
-5. Results display automatically on glasses (5 lines)
-6. Click "Stop Listening" to deactivate
+6. Results display automatically on glasses (5 lines) and in the app
+7. Click "Stop" to deactivate listening mode
 
 Examples:
 
@@ -107,9 +114,10 @@ Output:
 ```
 
 Configuration:
-- Adjust analysis interval (default 5 seconds) in app UI
-- Clear transcript manually with Clear button
+- Adjust analysis interval (default 5 seconds) via Settings button (gear icon)
+- Clear transcript manually with trash button
 - Transcript persists when you stop listening
+- Toggle between Start/Stop listening modes with prominent button
 
 ### Legacy Q&A Mode
 
@@ -132,26 +140,29 @@ From App (Voice):
 
 ```
 macos/
-├── Runner.xcodeproj/              # Xcode project
+├── Runner.xcodeproj/                  # Xcode project
 └── Runner/
-    ├── EvenGPTApp.swift           # App entry point
-    ├── AppDelegate.swift          # App lifecycle & BLE event handlers
-    ├── ContentView.swift          # SwiftUI main interface
-    ├── ChatViewModel.swift        # State management & chat logic
-    ├── ConversationAssistant.swift # AI conversation analysis
-    ├── OpenAIService.swift        # GPT-5 Responses API + GPT-4o Chat API
-    ├── BluetoothManager.swift     # BLE protocol for G1 glasses
-    ├── SpeechStreamRecognizer.swift # Voice recognition
-    ├── ServiceIdentifiers.swift   # BLE UUIDs
-    ├── GattProtocal.swift         # BLE helpers
-    ├── PcmConverter.h/m           # LC3 to PCM audio conversion
-    ├── Runner-Bridging-Header.h   # Obj-C bridge
-    ├── lc3/                       # LC3 audio codec (34 files)
-    ├── Assets.xcassets/           # App icons
-    ├── Info.plist                 # App metadata
-    └── *.entitlements             # Permissions
+    ├── CluelyIRLApp.swift             # App entry point (main app & tab navigation)
+    ├── AppDelegate.swift              # App lifecycle & BLE event handlers
+    ├── ContentView.swift              # Connection/setup interface
+    ├── ConversationAssistantView.swift # Main conversation UI (transcript + suggestions)
+    ├── ChatViewModel.swift            # State management & chat logic
+    ├── ConversationAssistant.swift    # AI conversation analysis
+    ├── OpenAIService.swift            # GPT-5 Responses API + GPT-4o Chat API
+    ├── BluetoothManager.swift         # BLE protocol for G1 glasses
+    ├── SpeechStreamRecognizer.swift   # Voice recognition
+    ├── ServiceIdentifiers.swift       # BLE UUIDs
+    ├── GattProtocal.swift             # BLE helpers
+    ├── PcmConverter.h/m               # LC3 to PCM audio conversion
+    ├── Runner-Bridging-Header.h       # Obj-C bridge
+    ├── lc3/                           # LC3 audio codec (34 files)
+    ├── Assets.xcassets/               # App icons
+    ├── Configs/                       # Build configurations
+    ├── Info.plist                     # App metadata
+    └── *.entitlements                 # Permissions
 
-EvenDemoApp-main/                  # Original Flutter demo (reference)
+reference_files/
+└── EvenDemoApp-main/                  # Original Flutter demo (reference)
 ```
 
 ## Architecture
@@ -287,6 +298,12 @@ Key Fields:
 
 ### Key Files to Modify
 
+App Structure:
+- `CluelyIRLApp.swift` - App entry point, tab navigation, connection status bar
+- `ConversationAssistantView.swift` - Main conversation UI (transcript, suggestions display)
+- `ContentView.swift` - Connection/setup interface
+- `ChatViewModel.swift` - State management and mode switching
+
 Conversation Assistant Logic:
 - `ConversationAssistant.swift` - Analysis logic, GPT prompt engineering, suggestion formatting
   - Line 186-250: Main prompt for GPT-5 (question detection, answer formatting)
@@ -297,10 +314,6 @@ OpenAI Integration:
   - Line 140-201: Responses API with web search
   - Line 203-243: Chat Completions API (fallback)
 
-UI Components:
-- `ContentView.swift` - Main SwiftUI interface
-- `ChatViewModel.swift` - State management and mode switching
-
 BLE Communication:
 - `BluetoothManager.swift` - Protocol implementation, packet construction
 - `GattProtocal.swift` - Low-level BLE helpers
@@ -309,10 +322,17 @@ BLE Communication:
 
 Adjust Analysis Interval:
 
-In `ConversationAssistant.swift` (line 22):
+In the UI (`ConversationAssistantView.swift`), users can change it via Settings, or you can set the default in `ChatViewModel.swift`:
 ```swift
-private var analysisInterval: TimeInterval = 10.0 // Change from 5.0 to 10.0
+@Published var analysisInterval: TimeInterval = 5.0 // Change default interval
 ```
+
+Customize UI Layout:
+
+Edit `ConversationAssistantView.swift` to modify:
+- Split view proportions (line 24-32)
+- Suggestion card styling (line 176-199)
+- Header controls and status indicators (line 42-94)
 
 Modify GPT-5 Prompt:
 
@@ -354,10 +374,12 @@ let response = try await openAIService.sendChatRequest(
 
 - Check glasses are powered on and charged
 - Verify macOS Bluetooth is enabled (System Settings → Bluetooth)
+- Navigate to the "Connection" tab in the app
 - Restart glasses (power off/on)
-- Rescan in the app after restart
-- Look for paired devices named "Pair_X" (X = channel number)
-- Verify both left and right peripherals are discovered
+- Click "Scan for Glasses" to rescan after restart
+- Look for devices named "Pair_X" (X = channel number) in the list
+- Verify both left and right peripherals are discovered and connected
+- Check connection status in the top bar (green dot = connected)
 
 ### No Voice Recognition
 
@@ -369,10 +391,12 @@ let response = try await openAIService.sendChatRequest(
 
 ### Conversation Assistant Not Working
 
-- Ensure glasses are connected before starting listening mode
+- Ensure glasses are connected before starting listening mode (check Connection tab)
+- Verify you're on the "Conversation Assistant" tab
 - Check that OpenAI API key has GPT-5 access
 - Look for "Analyzing conversation" logs in console
-- Verify transcript is updating in app UI
+- Verify transcript is updating in left panel of the UI
+- Check AI suggestions are appearing in right panel
 - Check for "Got response with web search" in console
 - Note: Analysis stops if no speech for >30 seconds
 
@@ -444,4 +468,4 @@ Built with:
 
 ---
 
-**Note**: This is a native Swift rewrite of the original Flutter demo app with GPT-5 conversation assistant capabilities, real-time web search, and continuous listening mode.
+**Note**: Cluely IRL is a native Swift/SwiftUI rewrite of the original Flutter demo app with GPT-5 conversation assistant capabilities, real-time web search, and continuous listening mode. The app features a modern tab-based interface for seamless conversation assistance and device management.

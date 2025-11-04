@@ -68,7 +68,7 @@
 		331C80D5294CF71000263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		331C80D7294CF71000263BE5 /* RunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerTests.swift; sourceTree = "<group>"; };
 		333000ED22D3DE5D00554162 /* Warnings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Warnings.xcconfig; sourceTree = "<group>"; };
-		33CC10ED2044A3C60003C045 /* demo_ai_even.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = demo_ai_even.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		33CC10ED2044A3C60003C045 /* Cluely IRL.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Cluely IRL.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		33CC10F02044A3C60003C045 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		33CC10F22044A3C60003C045 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = Runner/Assets.xcassets; sourceTree = "<group>"; };
 		33CC10F52044A3C60003C045 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/MainMenu.xib; sourceTree = "<group>"; };
@@ -185,7 +185,7 @@
 		33CC10EE2044A3C60003C045 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				33CC10ED2044A3C60003C045 /* demo_ai_even.app */,
+				33CC10ED2044A3C60003C045 /* Cluely IRL.app */,
 				331C80D5294CF71000263BE5 /* RunnerTests.xctest */,
 			);
 			name = Products;
@@ -299,7 +299,7 @@
 			);
 			name = Runner;
 			productName = Runner;
-			productReference = 33CC10ED2044A3C60003C045 /* demo_ai_even.app */;
+			productReference = 33CC10ED2044A3C60003C045 /* Cluely IRL.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -385,7 +385,7 @@
 				BB1B9DA12EB91FDA00A11F51 /* ConversationAssistant.swift in Sources */,
 				BB1B9DA22EB91FDA00A11F51 /* ConversationAssistantView.swift in Sources */,
 				BBFF82382EB9072200CAAF5E /* OpenAIService.swift in Sources */,
-				BBFF82362EB9070F00CAAF5E /* EvenGPTApp.swift in Sources */,
+				BBFF82362EB9070F00CAAF5E /* CluelyIRLApp.swift in Sources */,
 				BBFF82342EB906FB00CAAF5E /* ContentView.swift in Sources */,
 				BBFF82322EB906ED00CAAF5E /* ChatViewModel.swift in Sources */,
 				33CC10F12044A3C60003C045 /* AppDelegate.swift in Sources */,
@@ -442,7 +442,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.cluely.cluelyirl.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/demo_ai_even.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/demo_ai_even";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Cluely IRL.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Cluely IRL";
 			};
 			name = Debug;
 		};
@@ -456,7 +456,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.cluely.cluelyirl.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/demo_ai_even.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/demo_ai_even";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Cluely IRL.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Cluely IRL";
 			};
 			name = Release;
 		};
@@ -470,7 +470,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.cluely.cluelyirl.RunnerTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/demo_ai_even.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/demo_ai_even";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Cluely IRL.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Cluely IRL";
 			};
 			name = Profile;
 		};

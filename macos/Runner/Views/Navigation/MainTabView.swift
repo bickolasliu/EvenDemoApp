@@ -1,26 +1,13 @@
+//
+//  MainTabView.swift
+//  Runner
+//
+//  Main tab navigation container
+//
+
 import SwiftUI
 
-@main
-struct CluelyIRLApp: App {
-    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    @StateObject private var bluetoothManager = BluetoothManager.shared
-    @StateObject private var chatViewModel = ChatViewModel()
-
-    var body: some Scene {
-        WindowGroup {
-            MainView()
-                .environmentObject(bluetoothManager)
-                .environmentObject(chatViewModel)
-                .frame(minWidth: 900, minHeight: 700)
-        }
-        .windowStyle(.hiddenTitleBar)
-        .commands {
-            CommandGroup(replacing: .newItem) { }
-        }
-    }
-}
-
-struct MainView: View {
+struct MainTabView: View {
     @EnvironmentObject var bluetoothManager: BluetoothManager
     @State private var selectedTab = 0
 
@@ -78,6 +65,7 @@ struct ConnectionView: View {
     @EnvironmentObject var bluetoothManager: BluetoothManager
 
     var body: some View {
-        ContentView()
+        ConnectionManagementView()
     }
 }
+

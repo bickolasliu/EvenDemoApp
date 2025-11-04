@@ -7,16 +7,11 @@
 
 import Foundation
 
-struct ConversationSuggestion {
-    let text: String
-    let timestamp: Date
-}
-
 class ConversationAssistant {
     static let shared = ConversationAssistant()
 
     var onSuggestionsUpdated: (([ConversationSuggestion]) -> Void)?
-    var onGlassesSuggestions: ((String) -> Void)? // 5 lines max for glasses
+    var onGlassesSuggestions: ((String) -> Void)? // 3 lines max for glasses
 
     private var analysisTimer: Timer?
     private var analysisInterval: TimeInterval = 3.0 // Configurable
@@ -168,7 +163,7 @@ class ConversationAssistant {
                 await MainActor.run {
                     self.onSuggestionsUpdated?(suggestions)
 
-                    // Format for glasses (5 lines max, 3-5 words each)
+                    // Format for glasses (3 lines max, up to 30 chars each)
                     let glassesText = self.formatForGlasses(suggestions)
                     self.onGlassesSuggestions?(glassesText)
                 }
@@ -181,76 +176,74 @@ class ConversationAssistant {
     private func getSuggestions(for transcript: String) async throws -> [ConversationSuggestion] {
         print("📤 Sending to GPT-5 with web search enabled...")
 
-        // Focus on the most recent part of the transcript (last 300 chars for better context)
-        let recentTranscript = String(transcript.suffix(300))
+        // Focus on the most recent part of the transcript (last 500 chars for better context)
+        let recentTranscript = String(transcript.suffix(500))
 
         // Extract the VERY LAST sentence/utterance (most critical)
         let lastUtterance = extractLastUtterance(from: recentTranscript)
 
         let prompt = """
-You are an AI assistant for smart glasses. Analyze the user's speech and provide ultra-concise, actionable information.
+You are an AI assistant for smart glasses. Your job is to provide IMMEDIATELY USEFUL, ACTIONABLE information based on what the user is saying or asking.
 
-CURRENT UTTERANCE (just spoken):
-"\(lastUtterance)"
-
-CONTEXT (recent conversation):
+RECENT CONTEXT:
 "\(recentTranscript)"
 
-TASK:
-Analyze the CURRENT UTTERANCE and provide exactly 5 lines of output.
-- If it's a QUESTION: Answer with key facts (use web search for current/factual info)
-- If it's a STATEMENT: Suggest relevant follow-up points or questions
+MOST RECENT UTTERANCE:
+"\(lastUtterance)"
 
-OUTPUT FORMAT:
-Return exactly 5 lines. Each line must be 6 words maximum. No numbering, bullets, or formatting.
+YOUR TASK:
+Analyze what the user just said and provide exactly 3 helpful lines of text.
+
+IF IT'S A QUESTION OR REQUEST FOR INFO:
+- Answer it directly with key facts
+- Use web search for current information (sports, news, facts, people, events, etc.)
+- Be specific and factual
+- Never say "I don't know" - always provide relevant info
+
+IF IT'S A STATEMENT OR DISCUSSION:
+- Provide relevant insights or facts related to the topic
+- Suggest useful follow-up questions or talking points
+- Give context-appropriate information
 
 EXAMPLES:
 
-Input: "How tall is the Eiffel Tower"
+Input: "Who's the best player on MIT men's tennis team"
 Output:
-330 meters tall
-1,083 feet
-Built 1889
-Paris landmark
-Iron lattice tower
+Check MIT Athletics website
+Top singles: varies by season
+Contact coach for current roster
 
-Input: "Who won the 2024 election"
+Input: "How was your day"
 Output:
-[Current winner]
-Electoral votes
-Key states
-Victory margin
-Inauguration date
+Good conversation starter
+Ask about specific events
+Share your own day too
 
-Input: "discussing quarterly sales targets"
+Input: "I need to prepare for the quarterly review meeting tomorrow"
 Output:
-Current numbers?
-Growth rate
-Top performers
-Challenges
-Action items
+Review Q3 numbers and trends
+Prepare 3-5 key talking points
+Anticipate tough questions
 
-Input: "thinking about visiting Japan"
+Input: "What's the weather like in Tokyo right now"
 Output:
-Best season?
-Visa requirements
-Budget estimate
-Top cities
-Trip duration
+Tokyo: 18°C partly cloudy
+Humidity: 65%, Wind: 10 km/h
+Check forecast for your dates
 
 CRITICAL RULES:
-1. Exactly 5 lines, no more, no less
-2. Each line: max 6 words only
-3. Focus on the CURRENT utterance (the last thing spoken)
-4. No sources, citations, or URLs
-5. No numbering (1., 2., etc.) or bullets (-, •)
-6. Be factual for questions, suggestive for statements
-7. Ultra-concise - every word counts
+1. NEVER respond with "I don't know" or "please clarify" - always provide useful info
+2. Output exactly 3 lines, no more, no less
+3. Each line should be a complete thought (can be 20-60 characters)
+4. No numbering, bullets, or special formatting
+5. Be direct and actionable - think "what would help the glasses user RIGHT NOW?"
+6. Use web search when answering factual questions about current events, people, places, sports, etc.
+7. For vague input, provide generally helpful related information
 
-OUTPUT (5 lines, 1-4 words each):
+OUTPUT (3 lines of helpful information):
 """
 
-        print("📝 Sending optimized prompt (last utterance: '\(lastUtterance.prefix(50))...', context: \(recentTranscript.count) chars)...")
+        print("📝 Sending improved prompt (last utterance: '\(lastUtterance.prefix(50))...', context: \(recentTranscript.count) chars)...")
 
         let response = try await openAIService.sendChatRequest(question: prompt, enableWebSearch: true)
 
@@ -264,11 +257,12 @@ OUTPUT (5 lines, 1-4 words each):
         // Remove numbering if present (1., 2., etc.)
         lines = lines.map { line in
             line.replacingOccurrences(of: "^\\d+\\.\\s*", with: "", options: .regularExpression)
+                .replacingOccurrences(of: "^[-•*]\\s*", with: "", options: .regularExpression)
         }
 
         print("📋 Parsed \(lines.count) suggestions: \(lines)")
 
-        let suggestions = lines.prefix(5).map { line in
+        let suggestions = lines.prefix(3).map { line in
             ConversationSuggestion(text: String(line), timestamp: Date())
         }
 
@@ -278,46 +272,44 @@ OUTPUT (5 lines, 1-4 words each):
     }
 
     private func extractLastUtterance(from transcript: String) -> String {
-        // Extract the last sentence or question from the transcript
-        // Look for sentence boundaries: period, question mark, or significant pause indicators
-
+        // Extract the most recent meaningful utterance from the transcript
+        // This works even without punctuation by using word boundaries and length heuristics
+        
         let trimmed = transcript.trimmingCharacters(in: .whitespacesAndNewlines)
-
+        guard !trimmed.isEmpty else { return "" }
+        
         // Try to find the last sentence by looking for punctuation
-        let sentenceDelimiters = CharacterSet(charactersIn: ".?!")
+        let sentenceDelimiters = CharacterSet(charactersIn: ".?!\n")
         let components = trimmed.components(separatedBy: sentenceDelimiters)
-
-        // Get the last non-empty component
-        let lastSentence = components.last(where: { !$0.trimmingCharacters(in: .whitespaces).isEmpty }) ?? trimmed
-
-        // If the last sentence is very short, it might be incomplete - take more context
-        let lastUtterance = lastSentence.trimmingCharacters(in: .whitespaces)
-
-        // If it's too short (less than 5 chars), just return the last 150 chars of full transcript
-        if lastUtterance.count < 5 {
-            return String(trimmed.suffix(150))
+        
+        // Get the last non-empty component (most recent utterance)
+        if let lastComponent = components.last(where: { !$0.trimmingCharacters(in: .whitespaces).isEmpty }) {
+            let lastUtterance = lastComponent.trimmingCharacters(in: .whitespaces)
+            
+            // If it's reasonably long (>10 chars), use it
+            if lastUtterance.count >= 10 {
+                // Limit to last 200 chars to keep focused but allow full context
+                return String(lastUtterance.suffix(200))
+            }
         }
-
-        // Limit to last 150 chars to keep it focused
-        return String(lastUtterance.suffix(150))
+        
+        // Fallback: No clear punctuation or last segment too short
+        // Take the last 150 characters - this captures the most recent speech
+        // even when there's no punctuation
+        return String(trimmed.suffix(150))
     }
 
     private func formatForGlasses(_ suggestions: [ConversationSuggestion]) -> String {
-        // Take top 5 suggestions
-        let formatted = suggestions.prefix(5).map { suggestion in
-            // Keep ultra-short keywords as-is (should already be 1-3 words)
-            // Glasses can handle ~40 chars per line (488px width, font size 21)
-            let text = suggestion.text
-
-            if text.count > 40 {
-                return String(text.prefix(38)) + ".."
-            }
-            return text
-        }
-
+        // Take top 3 suggestions and join them with newlines
+        // Each line can be reasonably long (glasses can wrap text)
+        let formatted = suggestions.prefix(3).map { $0.text }
         let result = formatted.joined(separator: "\n")
-        print("👓 Formatted for glasses (\(formatted.count) lines, \(result.count) total chars):")
+        
+        // Truncate if total exceeds 200 chars (reasonable limit for glasses display)
+        let truncated = result.count > 200 ? String(result.prefix(200)) : result
+        
+        print("👓 Formatted for glasses (\(formatted.count) lines, \(truncated.count) total chars):")
         formatted.forEach { print("   '\($0)'") }
-        return result
+        return truncated
     }
 }

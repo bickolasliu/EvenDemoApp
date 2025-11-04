@@ -1,8 +1,8 @@
 //
-// GattProtocal.swift
-// Runner
+//  BluetoothProtocol.swift
+//  Runner
 //
-// Created by Hawk on 2024/10/24.
+//  Bluetooth GATT protocol definitions
 //
 
 import Foundation

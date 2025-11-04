@@ -1,28 +1,20 @@
+//
+//  ConversationAssistantViewModel.swift
+//  Runner
+//
+//  ViewModel for real-time conversation assistant mode
+//
+
 import SwiftUI
 import Combine
 
-struct ChatMessage: Identifiable {
-    let id = UUID()
-    let question: String
-    let answer: String
-    let timestamp: Date
-}
-
 @MainActor
-class ChatViewModel: ObservableObject {
-    @Published var messages: [ChatMessage] = []
-    @Published var currentQuestion: String = ""
-    @Published var currentAnswer: String = ""
-    @Published var isProcessing: Bool = false
-    @Published var isRecording: Bool = false
-
-    // Conversation Assistant Mode
+class ConversationAssistantViewModel: ObservableObject {
     @Published var isListening: Bool = false
     @Published var liveTranscript: String = ""
     @Published var suggestions: [ConversationSuggestion] = []
     @Published var analysisInterval: Double = 3.0 // seconds
 
-    private var openAIService = OpenAIService()
     private var conversationAssistant = ConversationAssistant.shared
 
     init() {
@@ -31,43 +23,26 @@ class ChatViewModel: ObservableObject {
         // Set the initial analysis interval
         conversationAssistant.setAnalysisInterval(analysisInterval)
 
-        // Legacy: Set up callback for speech recognition from glasses
-        SpeechStreamRecognizer.shared.onRecognitionResult = { [weak self] recognizedText in
-            print("🎤 Recognized text from glasses: \(recognizedText)")
-            Task { @MainActor in
-                if !recognizedText.isEmpty {
-                    await self?.sendQuestion(recognizedText)
-                }
-            }
-        }
-    }
-
-    private func setupConversationAssistant() {
         // Real-time transcript updates (partial - continuous listening mode)
-        // This provides live updates as speech is recognized
         SpeechStreamRecognizer.shared.onPartialTranscript = { [weak self] transcript in
             Task { @MainActor in
                 self?.liveTranscript = transcript
-                // Update conversation assistant with live transcript
                 self?.conversationAssistant.updateTranscript(transcript)
             }
         }
 
         // Complete transcript updates (final - for button-triggered mode)
-        // Also used when speech recognition completes a segment
         SpeechStreamRecognizer.shared.onRecognitionResult = { [weak self] transcript in
             guard let self = self else { return }
             Task { @MainActor in
-                // In continuous mode, just update the transcript
                 self.liveTranscript = transcript
-
                 print("📝 Final transcript: \(self.liveTranscript)")
-
-                // Update conversation assistant with final transcript
                 self.conversationAssistant.updateTranscript(self.liveTranscript)
             }
         }
+    }
 
+    private func setupConversationAssistant() {
         // Suggestions updates
         conversationAssistant.onSuggestionsUpdated = { [weak self] newSuggestions in
             Task { @MainActor in
@@ -170,10 +145,16 @@ class ChatViewModel: ObservableObject {
         }
 
         print("👓 Sending suggestions to glasses")
-        print("📝 Text to send: \(text)")
+        
+        // Format text with more generous limit (glasses can handle more text now)
+        // Each line can be longer, and total up to 200 chars
+        let truncatedText = String(text.prefix(200))
+        let formattedText = "\n\n\(truncatedText)"
+        
+        print("📝 Formatted text (\(formattedText.count) chars): '\(formattedText)'")
 
         let result = await BluetoothManager.shared.sendEvenAIData(
-            text: text,
+            text: formattedText,
             newScreen: 0x71, // Text display mode
             pos: 0,
             currentPage: 1,
@@ -218,91 +199,5 @@ Next steps
 
         print(result ? "✅ Test sent successfully" : "❌ Test send failed")
     }
-
-    // MARK: - Legacy Q&A Mode (kept for backward compatibility)
-
-    func sendQuestion(_ question: String) async {
-        guard !question.isEmpty else { return }
-
-        isProcessing = true
-        currentQuestion = question
-        currentAnswer = "Processing..."
-
-        do {
-            // Use GPT-5 with web search for better, factual responses
-            let answer = try await openAIService.sendChatRequest(question: question, enableWebSearch: true)
-            currentAnswer = answer
-
-            // Add to history
-            let message = ChatMessage(question: question, answer: answer, timestamp: Date())
-            messages.insert(message, at: 0)
-
-            // Send to glasses if connected
-            if BluetoothManager.shared.isConnected {
-                await sendToGlasses(answer)
-            }
-
-        } catch {
-            currentAnswer = "Error: \(error.localizedDescription)"
-        }
-
-        isProcessing = false
-    }
-
-    func startVoiceRecording() {
-        isRecording = true
-        SpeechStreamRecognizer.shared.startRecognition(identifier: "EN")
-
-        // Set up a listener for speech recognition results
-        SpeechStreamRecognizer.shared.onRecognitionResult = { [weak self] text in
-            Task { @MainActor in
-                self?.currentQuestion = text
-            }
-        }
-    }
-
-    func stopVoiceRecording() async {
-        isRecording = false
-        SpeechStreamRecognizer.shared.stopRecognition()
-
-        // Send the recognized text
-        if !currentQuestion.isEmpty {
-            await sendQuestion(currentQuestion)
-        }
-    }
-
-    private func sendToGlasses(_ text: String) async {
-        print("🔧 Sending text to glasses (TextService mode - 0x71)")
-
-        // Truncate and format text exactly like Flutter TextService
-        let truncatedText = String(text.prefix(100))
-
-        // Add leading newlines (Flutter adds \n\n for short text)
-        let formattedText = "\n\n\(truncatedText)"
-
-        print("📝 Formatted text: '\(formattedText)'")
-
-        // Send with 0x70 status (0x71 after OR with 0x01)
-        // This is for TEXT DISPLAY (not EvenAI voice mode!)
-        print("📤 Sending text with 0x71 (text display mode)")
-        await BluetoothManager.shared.sendEvenAIData(
-            text: formattedText,
-            newScreen: 0x71, // 0x01 | 0x70 (text display status)
-            pos: 0,
-            currentPage: 1,
-            maxPage: 1
-        )
-    }
-
-    private func measureStringList(_ text: String) -> [String] {
-        // Simple line splitting for now
-        // In production, would measure actual width as Flutter code did
-        let paragraphs = text.split(separator: "\n").map { String($0).trimmingCharacters(in: .whitespaces) }
-        return paragraphs.filter { !$0.isEmpty }
-    }
-
-    func clearCurrent() {
-        currentQuestion = ""
-        currentAnswer = ""
-    }
 }
+

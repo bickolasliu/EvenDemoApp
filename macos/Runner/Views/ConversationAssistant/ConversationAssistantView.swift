@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ConversationAssistantView: View {
-    @EnvironmentObject var viewModel: ChatViewModel
+    @EnvironmentObject var viewModel: ConversationAssistantViewModel
     @State private var showSettings = false
 
     var body: some View {

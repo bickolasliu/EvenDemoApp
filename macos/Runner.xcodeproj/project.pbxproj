@@ -36,6 +36,17 @@
 		BBFF82362EB9070F00CAAF5E /* CluelyIRLApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBFF82352EB9070F00CAAF5E /* CluelyIRLApp.swift */; };
 		BBFF82382EB9072200CAAF5E /* OpenAIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBFF82372EB9072200CAAF5E /* OpenAIService.swift */; };
 		E0C48946C32E2BD7336F8AFB /* BluetoothManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 246BA22457C8D7EA74EA5999 /* BluetoothManager.swift */; };
+		CDC01D7197A14FE18576C68A /* ChatMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5D948BB8F05417E845F9521 /* ChatMessage.swift */; };
+		2FD59313F18249278FDC5085 /* ConversationSuggestion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D35D5543A9447818CD07A78 /* ConversationSuggestion.swift */; };
+		945325639072460B80AF631F /* PairedGlasses.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FAC3A09B49C4AEDABD2C5BF /* PairedGlasses.swift */; };
+		C4244C29212B47EC8B5F635B /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A35316A8A9DE4D5ABDE0B5FE /* MainTabView.swift */; };
+		526BD823D4C34F11A4EFDECA /* ConnectionManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FE0542F59C824DCBBF7AE731 /* ConnectionManagementView.swift */; };
+		872DA32CF4274D3BAB0D3769 /* ConnectionStatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8DCD8E4BC2A14FD9805C3182 /* ConnectionStatusView.swift */; };
+		F7CCA3937C3F42289E9D903D /* ScanningView.swift in Sources */ = {isa = PBXBuildFile; fileRef = DEB60C1CE439437D9C2787AD /* ScanningView.swift */; };
+		191B3D8A68F240468338678E /* GlassesDeviceRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = B67A680E1A40432381D7B5C1 /* GlassesDeviceRow.swift */; };
+		00AB3C4451FD49EF8143EE78 /* ChatInterfaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B40908B610C1450DAFC025CA /* ChatInterfaceView.swift */; };
+		33BE05E1E265405B8BF45AB1 /* ChatHistoryRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5E3936575F34E9C90C38B50 /* ChatHistoryRow.swift */; };
+		1CE95E9BB7FF4F809B62DE91 /* ConversationAssistantViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69301CEC45764D4CB0081769 /* ConversationAssistantViewModel.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -62,9 +73,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		1387378A57B0FC73C24AE6D5 /* ServiceIdentifiers.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ServiceIdentifiers.swift; sourceTree = "<group>"; };
-		138A49FEE2CD6A91B3BB6937 /* PcmConverter.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = PcmConverter.m; sourceTree = "<group>"; };
-		246BA22457C8D7EA74EA5999 /* BluetoothManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BluetoothManager.swift; sourceTree = "<group>"; };
+		1387378A57B0FC73C24AE6D5 /* ServiceIdentifiers.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Utilities/ServiceIdentifiers.swift; sourceTree = "<group>"; };
+		138A49FEE2CD6A91B3BB6937 /* PcmConverter.m */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.objc; path = Utilities/PcmConverter.m; sourceTree = "<group>"; };
+		246BA22457C8D7EA74EA5999 /* BluetoothManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Services/Bluetooth/BluetoothManager.swift; sourceTree = "<group>"; };
 		331C80D5294CF71000263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		331C80D7294CF71000263BE5 /* RunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerTests.swift; sourceTree = "<group>"; };
 		333000ED22D3DE5D00554162 /* Warnings.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Warnings.xcconfig; sourceTree = "<group>"; };
@@ -77,12 +88,12 @@
 		33E51914231749380026EE4D /* Release.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = Release.entitlements; sourceTree = "<group>"; };
 		33E5194F232828860026EE4D /* AppInfo.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = AppInfo.xcconfig; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
-		7BB152723FFCD748D52B48AA /* PcmConverter.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = PcmConverter.h; sourceTree = "<group>"; };
-		8DFCFA4B55A7BC48C39AE53F /* SpeechStreamRecognizer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SpeechStreamRecognizer.swift; sourceTree = "<group>"; };
+		7BB152723FFCD748D52B48AA /* PcmConverter.h */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.c.h; path = Utilities/PcmConverter.h; sourceTree = "<group>"; };
+		8DFCFA4B55A7BC48C39AE53F /* SpeechStreamRecognizer.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Services/Speech/SpeechStreamRecognizer.swift; sourceTree = "<group>"; };
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
-		974D8857FC7D76A7CA720609 /* GattProtocal.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = GattProtocal.swift; sourceTree = "<group>"; };
-		BB1B9D9F2EB91FDA00A11F51 /* ConversationAssistant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ConversationAssistant.swift; path = Runner/ConversationAssistant.swift; sourceTree = "<group>"; };
-		BB1B9DA02EB91FDA00A11F51 /* ConversationAssistantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ConversationAssistantView.swift; path = Runner/ConversationAssistantView.swift; sourceTree = "<group>"; };
+		974D8857FC7D76A7CA720609 /* GattProtocal.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = Services/Bluetooth/BluetoothProtocol.swift; sourceTree = "<group>"; };
+		BB1B9D9F2EB91FDA00A11F51 /* ConversationAssistant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Services/AI/ConversationAssistant.swift; path = Runner/Services/AI/ConversationAssistant.swift; sourceTree = "<group>"; };
+		BB1B9DA02EB91FDA00A11F51 /* ConversationAssistantView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Views/ConversationAssistant/ConversationAssistantView.swift; path = Runner/Views/ConversationAssistant/ConversationAssistantView.swift; sourceTree = "<group>"; };
 		BB7617B52EB86C2B003CC0CC /* attdet.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = attdet.h; sourceTree = "<group>"; };
 		BB7617B62EB86C2B003CC0CC /* attdet.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = attdet.c; sourceTree = "<group>"; };
 		BB7617B72EB86C2B003CC0CC /* bits.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = bits.h; sourceTree = "<group>"; };
@@ -117,10 +128,21 @@
 		BB7617D42EB86C2B003CC0CC /* tables.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = tables.c; sourceTree = "<group>"; };
 		BB7617D52EB86C2B003CC0CC /* tns.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = tns.h; sourceTree = "<group>"; };
 		BB7617D62EB86C2B003CC0CC /* tns.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = tns.c; sourceTree = "<group>"; };
-		BBFF82312EB906ED00CAAF5E /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ChatViewModel.swift; path = Runner/ChatViewModel.swift; sourceTree = "<group>"; };
-		BBFF82332EB906FB00CAAF5E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ContentView.swift; path = Runner/ContentView.swift; sourceTree = "<group>"; };
-		BBFF82352EB9070F00CAAF5E /* CluelyIRLApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = CluelyIRLApp.swift; path = Runner/CluelyIRLApp.swift; sourceTree = "<group>"; };
-		BBFF82372EB9072200CAAF5E /* OpenAIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = OpenAIService.swift; path = Runner/OpenAIService.swift; sourceTree = "<group>"; };
+		BBFF82312EB906ED00CAAF5E /* ChatViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ViewModels/ConnectionChatViewModel.swift; path = Runner/ViewModels/ConnectionChatViewModel.swift; sourceTree = "<group>"; };
+		BBFF82332EB906FB00CAAF5E /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Views/Connection/ConnectionManagementView.swift; path = Runner/Views/Connection/ConnectionManagementView.swift; sourceTree = "<group>"; };
+		BBFF82352EB9070F00CAAF5E /* CluelyIRLApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = App/CluelyIRLApp.swift; path = Runner/App/CluelyIRLApp.swift; sourceTree = "<group>"; };
+		BBFF82372EB9072200CAAF5E /* OpenAIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = Services/AI/OpenAIService.swift; path = Runner/Services/AI/OpenAIService.swift; sourceTree = "<group>"; };
+		F5D948BB8F05417E845F9521 /* ChatMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Runner/Models/ChatMessage.swift; sourceTree = "<group>"; };
+		1D35D5543A9447818CD07A78 /* ConversationSuggestion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Runner/Models/ConversationSuggestion.swift; sourceTree = "<group>"; };
+		8FAC3A09B49C4AEDABD2C5BF /* PairedGlasses.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Runner/Models/PairedGlasses.swift; sourceTree = "<group>"; };
+		A35316A8A9DE4D5ABDE0B5FE /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Runner/Views/Navigation/MainTabView.swift; sourceTree = "<group>"; };
+		FE0542F59C824DCBBF7AE731 /* ConnectionManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Runner/Views/Connection/ConnectionManagementView.swift; sourceTree = "<group>"; };
+		8DCD8E4BC2A14FD9805C3182 /* ConnectionStatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Runner/Views/Connection/ConnectionStatusView.swift; sourceTree = "<group>"; };
+		DEB60C1CE439437D9C2787AD /* ScanningView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Runner/Views/Connection/ScanningView.swift; sourceTree = "<group>"; };
+		B67A680E1A40432381D7B5C1 /* GlassesDeviceRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Runner/Views/Connection/GlassesDeviceRow.swift; sourceTree = "<group>"; };
+		B40908B610C1450DAFC025CA /* ChatInterfaceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Runner/Views/Connection/ChatInterfaceView.swift; sourceTree = "<group>"; };
+		C5E3936575F34E9C90C38B50 /* ChatHistoryRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Runner/Views/Connection/ChatHistoryRow.swift; sourceTree = "<group>"; };
+		69301CEC45764D4CB0081769 /* ConversationAssistantViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Runner/ViewModels/ConversationAssistantViewModel.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -375,7 +397,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				331C80D8294CF71000263BE5 /* RunnerTests.swift in Sources */,
-			);
+			
+);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		33CC10E92044A3C60003C045 /* Sources */ = {
@@ -385,13 +408,23 @@
 				BB1B9DA12EB91FDA00A11F51 /* ConversationAssistant.swift in Sources */,
 				BB1B9DA22EB91FDA00A11F51 /* ConversationAssistantView.swift in Sources */,
 				BBFF82382EB9072200CAAF5E /* OpenAIService.swift in Sources */,
-				BBFF82362EB9070F00CAAF5E /* CluelyIRLApp.swift in Sources */,
-				BBFF82342EB906FB00CAAF5E /* ContentView.swift in Sources */,
+				CDC01D7197A14FE18576C68A /* ChatMessage.swift in Sources */,
+				2FD59313F18249278FDC5085 /* ConversationSuggestion.swift in Sources */,
+				945325639072460B80AF631F /* PairedGlasses.swift in Sources */,
+				C4244C29212B47EC8B5F635B /* MainTabView.swift in Sources */,
+				526BD823D4C34F11A4EFDECA /* ConnectionManagementView.swift in Sources */,
+				872DA32CF4274D3BAB0D3769 /* ConnectionStatusView.swift in Sources */,
+				F7CCA3937C3F42289E9D903D /* ScanningView.swift in Sources */,
+				191B3D8A68F240468338678E /* GlassesDeviceRow.swift in Sources */,
+				00AB3C4451FD49EF8143EE78 /* ChatInterfaceView.swift in Sources */,
+				33BE05E1E265405B8BF45AB1 /* ChatHistoryRow.swift in Sources */,
+				1CE95E9BB7FF4F809B62DE91 /* ConversationAssistantViewModel.swift in Sources */,
 				BBFF82322EB906ED00CAAF5E /* ChatViewModel.swift in Sources */,
+				BBFF82362EB9070F00CAAF5E /* CluelyIRLApp.swift in Sources */,
 				33CC10F12044A3C60003C045 /* AppDelegate.swift in Sources */,
 				E0C48946C32E2BD7336F8AFB /* BluetoothManager.swift in Sources */,
-				68574475B6681403C02982E1 /* ServiceIdentifiers.swift in Sources */,
 				69161B61F1735AC8A747642F /* GattProtocal.swift in Sources */,
+				68574475B6681403C02982E1 /* ServiceIdentifiers.swift in Sources */,
 				0001D0C4FCDD39C1408ED98D /* SpeechStreamRecognizer.swift in Sources */,
 				9015655811F01BBF08851402 /* PcmConverter.m in Sources */,
 				BB7617D82EB86C2B003CC0CC /* sns.c in Sources */,
@@ -551,7 +584,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Utilities/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Profile;
@@ -696,7 +729,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Utilities/Runner-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
@@ -723,7 +756,7 @@
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.5;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Utilities/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;

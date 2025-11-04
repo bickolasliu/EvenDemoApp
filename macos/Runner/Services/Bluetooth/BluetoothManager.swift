@@ -1,11 +1,5 @@
 import CoreBluetooth
 
-struct PairedGlasses {
-    let channelNumber: String
-    let leftDeviceName: String
-    let rightDeviceName: String
-}
-
 class BluetoothManager: NSObject, ObservableObject, CBCentralManagerDelegate, CBPeripheralDelegate {
     static let shared = BluetoothManager()
 

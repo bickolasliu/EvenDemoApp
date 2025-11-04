@@ -140,13 +140,8 @@ class SpeechStreamRecognizer {
                     if (currentTranscription.segments.count < lastTranscription?.segments.count ?? 1 || currentTranscription.segments.count == 1) {
                         // Add cached text with proper punctuation/spacing
                         if !self.lastRecognizedText.isEmpty && !cacheString.isEmpty {
-                            // Add period if previous text doesn't end with punctuation
-                            let trimmed = self.lastRecognizedText.trimmingCharacters(in: .whitespaces)
-                            if !trimmed.isEmpty && ![".", "!", "?"].contains(String(trimmed.last!)) {
-                                self.lastRecognizedText += ". "
-                            } else if !self.lastRecognizedText.hasSuffix(" ") {
-                                self.lastRecognizedText += " "
-                            }
+                            // Add proper spacing/punctuation between sentences
+                            self.lastRecognizedText = self.addProperPunctuation(self.lastRecognizedText, nextText: cacheString)
                         }
                         self.lastRecognizedText += cacheString
                         cacheString = ""
@@ -159,7 +154,13 @@ class SpeechStreamRecognizer {
 
                 // Send partial results for live transcript display (conversation assistant mode)
                 if !result.isFinal {
-                    let partialText = self.lastRecognizedText + cacheString
+                    // Combine text with proper punctuation
+                    var partialText = self.lastRecognizedText
+                    if !partialText.isEmpty && !cacheString.isEmpty {
+                        partialText = self.addProperPunctuation(partialText, nextText: cacheString)
+                    }
+                    partialText += cacheString
+                    
                     let formattedText = self.formatTranscriptWithNewlines(partialText)
                     DispatchQueue.main.async {
                         self.onPartialTranscript?(formattedText)
@@ -231,13 +232,7 @@ class SpeechStreamRecognizer {
                 if result.isFinal {
                     // Add transcript with proper punctuation/spacing
                     if !self.fullTranscript.isEmpty && !transcript.isEmpty {
-                        // Add period if previous text doesn't end with punctuation
-                        let trimmed = self.fullTranscript.trimmingCharacters(in: .whitespaces)
-                        if !trimmed.isEmpty && ![".", "!", "?"].contains(String(trimmed.last!)) {
-                            self.fullTranscript += ". "
-                        } else if !self.fullTranscript.hasSuffix(" ") {
-                            self.fullTranscript += " "
-                        }
+                        self.fullTranscript = self.addProperPunctuation(self.fullTranscript, nextText: transcript)
                     }
                     self.fullTranscript += transcript
                     print("✅ Final segment: \(transcript)")
@@ -252,7 +247,12 @@ class SpeechStreamRecognizer {
                     // Send partial results, but throttle to max 2 updates per second
                     let now = Date()
                     if now.timeIntervalSince(self.lastPartialUpdate) >= 0.5 {
-                        let currentText = self.fullTranscript + transcript
+                        var currentText = self.fullTranscript
+                        if !currentText.isEmpty && !transcript.isEmpty {
+                            currentText = self.addProperPunctuation(currentText, nextText: transcript)
+                        }
+                        currentText += transcript
+                        
                         let formattedText = self.formatTranscriptWithNewlines(currentText)
                         self.lastPartialUpdate = now
                         DispatchQueue.main.async {
@@ -306,6 +306,22 @@ class SpeechStreamRecognizer {
         fullTranscript = ""
     }
 
+    // Helper to add proper punctuation/spacing between sentences
+    private func addProperPunctuation(_ existingText: String, nextText: String) -> String {
+        let trimmed = existingText.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else { return existingText }
+        
+        // Check if existing text already ends with punctuation
+        let lastChar = trimmed.last!
+        if [".", "!", "?", ",", ";", ":"].contains(lastChar) {
+            // Already has punctuation, just ensure proper spacing
+            return existingText.hasSuffix(" ") ? existingText : existingText + " "
+        }
+        
+        // No punctuation - add period and space for sentence boundary
+        return existingText + ". "
+    }
+    
     private func formatTranscriptWithNewlines(_ text: String) -> String {
         // Add newlines for better readability
         // Speech recognition often doesn't add punctuation in real-time,
@@ -365,12 +381,7 @@ class SpeechStreamRecognizer {
         
         // Add cached text with proper punctuation/spacing
         if !self.lastRecognizedText.isEmpty && !cacheString.isEmpty {
-            let trimmed = self.lastRecognizedText.trimmingCharacters(in: .whitespaces)
-            if !trimmed.isEmpty && ![".", "!", "?"].contains(String(trimmed.last!)) {
-                self.lastRecognizedText += ". "
-            } else if !self.lastRecognizedText.hasSuffix(" ") {
-                self.lastRecognizedText += " "
-            }
+            self.lastRecognizedText = self.addProperPunctuation(self.lastRecognizedText, nextText: cacheString)
         }
         self.lastRecognizedText += cacheString
 

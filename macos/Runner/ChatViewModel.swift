@@ -20,13 +20,16 @@ class ChatViewModel: ObservableObject {
     @Published var isListening: Bool = false
     @Published var liveTranscript: String = ""
     @Published var suggestions: [ConversationSuggestion] = []
-    @Published var analysisInterval: Double = 5.0 // seconds
+    @Published var analysisInterval: Double = 3.0 // seconds
 
     private var openAIService = OpenAIService()
     private var conversationAssistant = ConversationAssistant.shared
 
     init() {
         setupConversationAssistant()
+        
+        // Set the initial analysis interval
+        conversationAssistant.setAnalysisInterval(analysisInterval)
 
         // Legacy: Set up callback for speech recognition from glasses
         SpeechStreamRecognizer.shared.onRecognitionResult = { [weak self] recognizedText in

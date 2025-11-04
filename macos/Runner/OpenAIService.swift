@@ -146,7 +146,7 @@ class OpenAIService {
         request.timeoutInterval = 60.0 // Increased timeout for GPT-5 with web search
 
         let body = ResponsesRequest(
-            model: "gpt-5",
+            model: "gpt-5-chat-latest",
             input: question,
             tools: [WebSearchTool()],
             tool_choice: "auto"

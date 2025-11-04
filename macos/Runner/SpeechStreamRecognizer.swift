@@ -138,6 +138,16 @@ class SpeechStreamRecognizer {
                 } else {
 
                     if (currentTranscription.segments.count < lastTranscription?.segments.count ?? 1 || currentTranscription.segments.count == 1) {
+                        // Add cached text with proper punctuation/spacing
+                        if !self.lastRecognizedText.isEmpty && !cacheString.isEmpty {
+                            // Add period if previous text doesn't end with punctuation
+                            let trimmed = self.lastRecognizedText.trimmingCharacters(in: .whitespaces)
+                            if !trimmed.isEmpty && ![".", "!", "?"].contains(String(trimmed.last!)) {
+                                self.lastRecognizedText += ". "
+                            } else if !self.lastRecognizedText.hasSuffix(" ") {
+                                self.lastRecognizedText += " "
+                            }
+                        }
                         self.lastRecognizedText += cacheString
                         cacheString = ""
                     } else {
@@ -219,7 +229,17 @@ class SpeechStreamRecognizer {
 
                 // Update full transcript
                 if result.isFinal {
-                    self.fullTranscript += transcript + " "
+                    // Add transcript with proper punctuation/spacing
+                    if !self.fullTranscript.isEmpty && !transcript.isEmpty {
+                        // Add period if previous text doesn't end with punctuation
+                        let trimmed = self.fullTranscript.trimmingCharacters(in: .whitespaces)
+                        if !trimmed.isEmpty && ![".", "!", "?"].contains(String(trimmed.last!)) {
+                            self.fullTranscript += ". "
+                        } else if !self.fullTranscript.hasSuffix(" ") {
+                            self.fullTranscript += " "
+                        }
+                    }
+                    self.fullTranscript += transcript
                     print("✅ Final segment: \(transcript)")
                     print("📝 Full transcript now: \(self.fullTranscript)")
 
@@ -287,17 +307,52 @@ class SpeechStreamRecognizer {
     }
 
     private func formatTranscriptWithNewlines(_ text: String) -> String {
-        // Add newlines after sentence-ending punctuation for better readability
+        // Add newlines for better readability
+        // Speech recognition often doesn't add punctuation in real-time,
+        // so we add newlines based on word count AND punctuation
+
         var formatted = text
 
-        // Replace period + space with period + newline
+        // First, handle punctuation-based breaks (for when punctuation exists)
         formatted = formatted.replacingOccurrences(of: ". ", with: ".\n")
-
-        // Replace question mark + space with question mark + newline
         formatted = formatted.replacingOccurrences(of: "? ", with: "?\n")
-
-        // Replace exclamation + space with exclamation + newline
         formatted = formatted.replacingOccurrences(of: "! ", with: "!\n")
+
+        // Now add newlines every ~10 words for better visual flow
+        // This helps when there's no punctuation yet (live transcription)
+        let words = formatted.split(separator: " ")
+        if words.count > 10 {
+            var result = ""
+            var wordCount = 0
+
+            for (index, word) in words.enumerated() {
+                result += word
+                wordCount += 1
+
+                // Check if this word ends with punctuation (already has newline)
+                let wordString = String(word)
+                let hasPunctuation = wordString.hasSuffix(".") ||
+                                   wordString.hasSuffix("?") ||
+                                   wordString.hasSuffix("!")
+
+                if hasPunctuation {
+                    // Already handled by punctuation replacement above
+                    if !result.hasSuffix("\n") {
+                        result += "\n"
+                    }
+                    wordCount = 0 // Reset counter after punctuation
+                } else if wordCount >= 10 {
+                    // Add newline every 10 words if no punctuation
+                    result += "\n"
+                    wordCount = 0
+                } else if index < words.count - 1 {
+                    // Add space between words (not after last word)
+                    result += " "
+                }
+            }
+
+            return result.trimmingCharacters(in: .whitespacesAndNewlines)
+        }
 
         return formatted
     }
@@ -307,6 +362,16 @@ class SpeechStreamRecognizer {
     func stopRecognition() {
         isRecording = false
         print("stopRecognition-----self.lastRecognizedText-------\(self.lastRecognizedText)------cacheString----------\(cacheString)---")
+        
+        // Add cached text with proper punctuation/spacing
+        if !self.lastRecognizedText.isEmpty && !cacheString.isEmpty {
+            let trimmed = self.lastRecognizedText.trimmingCharacters(in: .whitespaces)
+            if !trimmed.isEmpty && ![".", "!", "?"].contains(String(trimmed.last!)) {
+                self.lastRecognizedText += ". "
+            } else if !self.lastRecognizedText.hasSuffix(" ") {
+                self.lastRecognizedText += " "
+            }
+        }
         self.lastRecognizedText += cacheString
 
         let formattedText = formatTranscriptWithNewlines(self.lastRecognizedText)

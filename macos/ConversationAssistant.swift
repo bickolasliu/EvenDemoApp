@@ -19,7 +19,7 @@ class ConversationAssistant {
     var onGlassesSuggestions: ((String) -> Void)? // 5 lines max for glasses
 
     private var analysisTimer: Timer?
-    private var analysisInterval: TimeInterval = 5.0 // Configurable
+    private var analysisInterval: TimeInterval = 3.0 // Configurable
     private var openAIService = OpenAIService()
 
     private var fullTranscript: String = "" // Complete running transcript
@@ -188,65 +188,66 @@ class ConversationAssistant {
         let lastUtterance = extractLastUtterance(from: recentTranscript)
 
         let prompt = """
-CONTEXT: You are an AI assistant helping someone wearing smart glasses. The person is having a conversation or needs information displayed on their glasses. The transcript below is from their microphone.
+You are an AI assistant for smart glasses. Analyze the user's speech and provide ultra-concise, actionable information.
 
-MOST RECENT UTTERANCE (HIGHEST PRIORITY - focus here!):
+CURRENT UTTERANCE (just spoken):
 "\(lastUtterance)"
 
-FULLER CONTEXT (for reference):
+CONTEXT (recent conversation):
 "\(recentTranscript)"
 
-🚨 CRITICAL: The LAST utterance above is what was JUST spoken. This is your primary focus!
+TASK:
+Analyze the CURRENT UTTERANCE and provide exactly 5 lines of output.
+- If it's a QUESTION: Answer with key facts (use web search for current/factual info)
+- If it's a STATEMENT: Suggest relevant follow-up points or questions
 
-YOUR TASK:
-1. If the last utterance is a QUESTION → Provide a DIRECT ANSWER with facts
-2. If the last utterance is a statement → Suggest relevant follow-up questions or helpful information
-3. Your response will be displayed on smart glasses - keep it ultra-concise!
+OUTPUT FORMAT:
+Return exactly 5 lines. Each line must be 6 words maximum. No numbering, bullets, or formatting.
 
-QUESTION DETECTION (TOP PRIORITY):
-- Question words: "what", "who", "where", "when", "how", "which", "why", "is", "are", "can", "does"
-- Question marks: "?"
-- Question phrases: "tell me", "I wonder", "do you know", "can you", "how tall", "how many"
+EXAMPLES:
 
-📍 IF QUESTION DETECTED → ANSWER IT NOW (use web search for facts):
+Input: "How tall is the Eiffel Tower"
+Output:
+330 meters tall
+1,083 feet
+Built 1889
+Paris landmark
+Iron lattice tower
 
-Example: Last utterance: "How tall is the Empire State building"
-Correct response:
-1,454 feet
-381 meters
-102 floors
-Built 1931
-NYC landmark
+Input: "Who won the 2024 election"
+Output:
+[Current winner]
+Electoral votes
+Key states
+Victory margin
+Inauguration date
 
-Example: Last utterance: "who won the super bowl"
-Correct response:
-Chiefs won
-38-35 score
-Feb 2024
-Mahomes MVP
-Vegas
+Input: "discussing quarterly sales targets"
+Output:
+Current numbers?
+Growth rate
+Top performers
+Challenges
+Action items
 
-💬 IF NO QUESTION → SUGGEST HELPFUL INFO:
+Input: "thinking about visiting Japan"
+Output:
+Best season?
+Visa requirements
+Budget estimate
+Top cities
+Trip duration
 
-Example: Last utterance: "discussing the project budget"
-Correct response:
-Timeline?
-Cost breakdown
-ROI estimate
-Resources?
-Risks
+CRITICAL RULES:
+1. Exactly 5 lines, no more, no less
+2. Each line: max 6 words only
+3. Focus on the CURRENT utterance (the last thing spoken)
+4. No sources, citations, or URLs
+5. No numbering (1., 2., etc.) or bullets (-, •)
+6. Be factual for questions, suggestive for statements
+7. Ultra-concise - every word counts
 
-ULTRA-CRITICAL RULES:
-1. Maximum 3 words per line
-2. FOCUS ON THE LAST UTTERANCE - ignore older parts of transcript
-3. If there's ANY question in the last utterance, ANSWER IT with facts
-4. Use web search for factual questions
-5. Be ultra-concise - abbreviate everything
-6. No numbering, bullets, or extra text
-7. Response shows on glasses - make it instantly readable
-8. NO SOURCES, NO CITATIONS, NO URLs - just the pure facts/suggestions
-
-Reply with ONLY 5 items, one per line (no sources):
+OUTPUT (5 lines, 1-4 words each):
 """
 
         print("📝 Sending optimized prompt (last utterance: '\(lastUtterance.prefix(50))...', context: \(recentTranscript.count) chars)...")
@@ -305,12 +306,11 @@ Reply with ONLY 5 items, one per line (no sources):
         // Take top 5 suggestions
         let formatted = suggestions.prefix(5).map { suggestion in
             // Keep ultra-short keywords as-is (should already be 1-3 words)
-            // Glasses can handle ~18-20 chars per line comfortably
+            // Glasses can handle ~40 chars per line (488px width, font size 21)
             let text = suggestion.text
 
-            // Only truncate if somehow longer than 20 chars
-            if text.count > 20 {
-                return String(text.prefix(18)) + ".."
+            if text.count > 40 {
+                return String(text.prefix(38)) + ".."
             }
             return text
         }

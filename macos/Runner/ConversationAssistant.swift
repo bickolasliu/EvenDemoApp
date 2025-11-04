@@ -19,7 +19,7 @@ class ConversationAssistant {
     var onGlassesSuggestions: ((String) -> Void)? // 5 lines max for glasses
 
     private var analysisTimer: Timer?
-    private var analysisInterval: TimeInterval = 5.0 // Configurable
+    private var analysisInterval: TimeInterval = 3.0 // Configurable
     private var openAIService = OpenAIService()
 
     private var fullTranscript: String = "" // Complete running transcript
@@ -118,13 +118,34 @@ class ConversationAssistant {
     private func getSuggestions(for transcript: String) async throws -> [ConversationSuggestion] {
         print("📤 Sending to OpenAI API...")
 
-        let prompt = """
-Based on this conversation: "\(transcript)"
+        // Calculate how much transcript to include (last ~500 chars for context, but include full if shorter)
+        let maxContextLength = 1000
+        let transcriptToUse: String
+        if transcript.count > maxContextLength {
+            // Get the last portion of the transcript
+            let startIndex = transcript.index(transcript.endIndex, offsetBy: -maxContextLength)
+            transcriptToUse = "...\(transcript[startIndex...])"
+        } else {
+            transcriptToUse = transcript
+        }
 
-Give me 5 short suggestions (3-5 words each) for what to say next. Reply with ONLY the suggestions, one per line:
+        let prompt = """
+You are a conversation assistant analyzing a live conversation transcript. Based on the conversation below, provide 5 helpful and contextually relevant suggestions for what to say next.
+
+CONVERSATION TRANSCRIPT:
+\(transcriptToUse)
+
+---
+
+Provide 5 short suggestions (3-5 words each) for what to say next. Make them:
+- Natural and conversational
+- Relevant to the most recent part of the conversation
+- Varied (questions, statements, responses, etc.)
+
+Reply with ONLY the suggestions, one per line, without numbering:
 """
 
-        print("📝 Prompt: \(prompt)")
+        print("📝 Prompt length: \(prompt.count) chars, transcript: \(transcriptToUse.count) chars")
 
         let response = try await openAIService.sendChatRequest(question: prompt)
 

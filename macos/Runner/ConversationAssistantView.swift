@@ -151,7 +151,8 @@ struct ConversationAssistantView: View {
                             Text(viewModel.liveTranscript)
                                 .font(.system(.body, design: .default))
                                 .textSelection(.enabled)
-                                .lineSpacing(4)
+                                .lineSpacing(6)
+                                .fixedSize(horizontal: false, vertical: true)
                                 .frame(maxWidth: .infinity, alignment: .topLeading)
                                 .padding()
                         }

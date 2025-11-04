@@ -146,8 +146,8 @@ class ConversationAssistantViewModel: ObservableObject {
 
         print("👓 Sending suggestions to glasses")
         
-        // Format text with more generous limit (glasses can handle more text now)
-        // Each line can be longer, and total up to 200 chars
+        // Format with initial spacing and minimal newlines
+        // Keep only the \n\n at the beginning and single \n between items
         let truncatedText = String(text.prefix(200))
         let formattedText = "\n\n\(truncatedText)"
         

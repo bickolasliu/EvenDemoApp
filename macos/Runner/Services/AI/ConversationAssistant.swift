@@ -183,7 +183,7 @@ class ConversationAssistant {
         let lastUtterance = extractLastUtterance(from: recentTranscript)
 
         let prompt = """
-You are an AI assistant for smart glasses. Your job is to provide IMMEDIATELY USEFUL, ACTIONABLE information based on what the user is saying or asking.
+You are an AI assistant for smart glasses. Provide concise, relevant keywords and information based on what the user is saying.
 
 RECENT CONTEXT:
 "\(recentTranscript)"
@@ -192,58 +192,56 @@ MOST RECENT UTTERANCE:
 "\(lastUtterance)"
 
 YOUR TASK:
-Analyze what the user just said and provide exactly 3 helpful lines of text.
+Output a stream of relevant keywords and brief facts. Be extremely concise.
 
-IF IT'S A QUESTION OR REQUEST FOR INFO:
-- Answer it directly with key facts
-- Use web search for current information (sports, news, facts, people, events, etc.)
-- Be specific and factual
+IF IT'S A QUESTION:
+- Answer with key facts and data points
+- Use web search for current info (sports, news, facts, people, events)
 - Never say "I don't know" - always provide relevant info
 
-IF IT'S A STATEMENT OR DISCUSSION:
-- Provide relevant insights or facts related to the topic
-- Suggest useful follow-up questions or talking points
-- Give context-appropriate information
+IF IT'S A STATEMENT:
+- Provide relevant insights or talking points
+- Suggest useful follow-up topics
 
 EXAMPLES:
 
 Input: "Who's the best player on MIT men's tennis team"
 Output:
-Check MIT Athletics website
-Top singles: varies by season
-Contact coach for current roster
+MIT Athletics roster
+Top singles varies by season
+Check current rankings
 
 Input: "How was your day"
 Output:
-Good conversation starter
-Ask about specific events
-Share your own day too
+Good opener
+Ask specifics
+Share your day too
 
-Input: "I need to prepare for the quarterly review meeting tomorrow"
+Input: "quarterly review meeting tomorrow"
 Output:
-Review Q3 numbers and trends
-Prepare 3-5 key talking points
-Anticipate tough questions
+Review Q3 numbers
+Prepare talking points
+Anticipate questions
 
-Input: "What's the weather like in Tokyo right now"
+Input: "weather in Tokyo"
 Output:
 Tokyo: 18°C partly cloudy
-Humidity: 65%, Wind: 10 km/h
-Check forecast for your dates
+Humidity 65%, Wind 10km/h
+Spring/fall best seasons
 
 CRITICAL RULES:
-1. NEVER respond with "I don't know" or "please clarify" - always provide useful info
-2. Output exactly 3 lines, no more, no less
-3. Each line should be a complete thought (can be 20-60 characters)
-4. No numbering, bullets, or special formatting
-5. Be direct and actionable - think "what would help the glasses user RIGHT NOW?"
-6. Use web search when answering factual questions about current events, people, places, sports, etc.
-7. For vague input, provide generally helpful related information
+1. Be extremely concise - keywords and brief phrases
+2. Never include sources, citations, URLs, or references
+3. Never say "I don't know" or "please clarify"
+4. Use web search for factual questions
+5. Output 3-5 short pieces of information
+6. No numbering, bullets, or special formatting
+7. Separate pieces with line breaks
 
-OUTPUT (3 lines of helpful information):
+OUTPUT (concise keywords and info):
 """
 
-        print("📝 Sending improved prompt (last utterance: '\(lastUtterance.prefix(50))...', context: \(recentTranscript.count) chars)...")
+        print("📝 Sending concise prompt (last utterance: '\(lastUtterance.prefix(50))...', context: \(recentTranscript.count) chars)...")
 
         let response = try await openAIService.sendChatRequest(question: prompt, enableWebSearch: true)
 
@@ -254,15 +252,19 @@ OUTPUT (3 lines of helpful information):
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { !$0.isEmpty }
 
-        // Remove numbering if present (1., 2., etc.)
+        // Remove any numbering, bullets, or source indicators
         lines = lines.map { line in
             line.replacingOccurrences(of: "^\\d+\\.\\s*", with: "", options: .regularExpression)
                 .replacingOccurrences(of: "^[-•*]\\s*", with: "", options: .regularExpression)
+                .replacingOccurrences(of: "^Source:.*", with: "", options: [.regularExpression, .caseInsensitive])
+                .replacingOccurrences(of: "^\\[.*?\\]\\s*", with: "", options: .regularExpression)
         }
+        .filter { !$0.isEmpty }
 
         print("📋 Parsed \(lines.count) suggestions: \(lines)")
 
-        let suggestions = lines.prefix(3).map { line in
+        // Take up to 5 pieces of info
+        let suggestions = lines.prefix(5).map { line in
             ConversationSuggestion(text: String(line), timestamp: Date())
         }
 
@@ -300,15 +302,15 @@ OUTPUT (3 lines of helpful information):
     }
 
     private func formatForGlasses(_ suggestions: [ConversationSuggestion]) -> String {
-        // Take top 3 suggestions and join them with newlines
-        // Each line can be reasonably long (glasses can wrap text)
-        let formatted = suggestions.prefix(3).map { $0.text }
+        // Join suggestions with single newline between each
+        // This creates a compact stream of info
+        let formatted = suggestions.map { $0.text }
         let result = formatted.joined(separator: "\n")
         
         // Truncate if total exceeds 200 chars (reasonable limit for glasses display)
         let truncated = result.count > 200 ? String(result.prefix(200)) : result
         
-        print("👓 Formatted for glasses (\(formatted.count) lines, \(truncated.count) total chars):")
+        print("👓 Formatted for glasses (\(formatted.count) pieces, \(truncated.count) total chars):")
         formatted.forEach { print("   '\($0)'") }
         return truncated
     }

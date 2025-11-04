@@ -16,7 +16,7 @@ A native Swift/SwiftUI macOS application for Even Realities G1 AR glasses with O
 ### Legacy Q&A Mode
 
 - Voice input via Mac or glasses microphone
-- GPT-4o integration using Chat Completions API
+- GPT-5 integration with web search (Responses API)
 - Responses displayed on macOS app and glasses
 - Full chat history
 
@@ -148,7 +148,7 @@ macos/
     ├── ConversationAssistantView.swift # Main conversation UI (transcript + suggestions)
     ├── ChatViewModel.swift            # State management & chat logic
     ├── ConversationAssistant.swift    # AI conversation analysis
-    ├── OpenAIService.swift            # GPT-5 Responses API + GPT-4o Chat API
+    ├── OpenAIService.swift            # GPT-5 Responses API (with web search) + GPT-4o fallback
     ├── BluetoothManager.swift         # BLE protocol for G1 glasses
     ├── SpeechStreamRecognizer.swift   # Voice recognition
     ├── ServiceIdentifiers.swift       # BLE UUIDs
@@ -218,13 +218,13 @@ Glasses (Long-press) OR App (Hold button)
 
 ## OpenAI Integration
 
-### GPT-5 with Web Search (Conversation Assistant)
+### GPT-5 with Web Search (All Modes)
 
-Uses the Responses API (`/v1/responses`) with web search tool:
+Both Conversation Assistant and Legacy Q&A now use the Responses API (`/v1/responses`) with web search tool:
 
 ```swift
 {
-  "model": "gpt-5",
+  "model": "gpt-5-chat-latest",
   "input": "How tall is the Empire State building",
   "tools": [{"type": "web_search"}],
   "tool_choice": "auto"
@@ -232,14 +232,15 @@ Uses the Responses API (`/v1/responses`) with web search tool:
 ```
 
 - Endpoint: `https://api.openai.com/v1/responses`
-- Model: `gpt-5`
+- Model: `gpt-5-chat-latest`
 - Tool: `web_search`
 - Timeout: 60 seconds
 - Output: Text only (sources/citations stripped for display)
+- Used for: Both continuous conversation analysis AND one-off Q&A
 
-### GPT-4o Chat (Legacy Q&A)
+### GPT-4o Fallback (Optional)
 
-Uses the Chat Completions API (`/v1/chat/completions`):
+A Chat Completions API fallback exists for non-web-search requests:
 
 ```swift
 {
@@ -256,6 +257,7 @@ Uses the Chat Completions API (`/v1/chat/completions`):
 - Model: `gpt-4o`
 - Timeout: 30 seconds
 - Max tokens: 500
+- Used when: `enableWebSearch: false` is explicitly set
 
 ## BLE Protocol (Even G1)
 
@@ -310,9 +312,9 @@ Conversation Assistant Logic:
   - Line 304-322: Formatting for glasses display (5 lines max)
 
 OpenAI Integration:
-- `OpenAIService.swift` - API client for GPT-5/GPT-4o
-  - Line 140-201: Responses API with web search
-  - Line 203-243: Chat Completions API (fallback)
+- `OpenAIService.swift` - API client for GPT-5 with web search
+  - Line 140-201: Responses API with GPT-5 and web search (primary)
+  - Line 203-243: Chat Completions API with GPT-4o (fallback)
 
 BLE Communication:
 - `BluetoothManager.swift` - Protocol implementation, packet construction
@@ -355,12 +357,22 @@ if text.count > 30 {
 Switch AI Models:
 
 In `OpenAIService.swift`:
-- Line 149: Change `"gpt-5"` to another Responses API model
-- Line 212: Change `"gpt-4o"` to another Chat model (e.g., `"gpt-4-turbo"`)
+- Line 149: Change `"gpt-5-chat-latest"` to another Responses API model
+- Line 212: Change `"gpt-4o"` to another Chat model for fallback (e.g., `"gpt-4-turbo"`)
 
 Disable Web Search:
 
-In `ChatViewModel.swift` (line 254):
+To disable web search and use GPT-4o fallback instead:
+
+In `ChatViewModel.swift` (line 233 for Q&A mode):
+```swift
+let answer = try await openAIService.sendChatRequest(
+    question: question, 
+    enableWebSearch: false  // Change from true to false
+)
+```
+
+Or in `ConversationAssistant.swift` (line 255 for conversation mode):
 ```swift
 let response = try await openAIService.sendChatRequest(
     question: prompt, 
@@ -406,7 +418,8 @@ let response = try await openAIService.sendChatRequest(
   - Look for "Loaded API key from..." in console
   - Verify `.env` file exists and contains `OPENAI_API_KEY=sk-...`
 - **403 Forbidden**: GPT-5 access may not be enabled for your account
-  - Falls back to GPT-4o for non-web-search requests
+  - Verify your OpenAI account has access to `gpt-5-chat-latest`
+  - Can manually set `enableWebSearch: false` to use GPT-4o fallback
 - **429 Rate Limit**: Too many requests, wait and retry
 - **500 Server Error**: OpenAI service issue, retry later
 - Check internet connection

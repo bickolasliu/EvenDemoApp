@@ -229,7 +229,8 @@ Next steps
         currentAnswer = "Processing..."
 
         do {
-            let answer = try await openAIService.sendChatRequest(question: question)
+            // Use GPT-5 with web search for better, factual responses
+            let answer = try await openAIService.sendChatRequest(question: question, enableWebSearch: true)
             currentAnswer = answer
 
             // Add to history
